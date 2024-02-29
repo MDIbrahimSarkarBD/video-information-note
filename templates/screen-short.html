@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #capture {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 20px;
+            position: relative;
+        }
+        #cropping-area {
+            border: 2px dashed red;
+            position: absolute;
+            cursor: move;
+            display: none;
+        }
+        .resize-handle {
+            width: 10px;
+            height: 10px;
+            background-color: blue;
+            position: absolute;
+        }
+        .resize-handle.bottom-right {
+            bottom: -5px;
+            right: -5px;
+            cursor: se-resize;
+        }
+    </style>
+    <title>Screen Capture App</title>
+</head>
+<body>
+    <div id="capture">
+        <h2>Element to Capture</h2>
+        <p>This is the content you want to capture.</p>
+        <label for="width">Width:</label>
+        <input type="number" id="width" min="1" value="100"><br>
+        <label for="height">Height:</label>
+        <input type="number" id="height" min="1" value="100"><br>
+        <button onclick="startCrop()">Start Crop</button>
+        <button onclick="captureScreen()">Capture Screen</button><br>
+        <label for="format">Select format:</label>
+        <select id="format">
+            <option value="png">PNG</option>
+            <option value="jpeg">JPEG</option>
+        </select><br>
+        <label for="filename">Filename:</label>
+        <input type="text" id="filename" value="screenshot"><br>
+        <button onclick="saveScreenshot()">Save Screenshot</button>
+    </div>
+
+    <script>
+        let isCropping = false;
+        let startX, startY, endX, endY;
+        let resizeHandle = null;
+
+        function startCrop() {
+            isCropping = true;
+            const captureElement = document.getElementById('capture');
+            const croppingArea = document.getElementById('cropping-area');
+            croppingArea.style.display = 'block';
+            createResizeHandles();
+
+            const width = parseInt(document.getElementById('width').value);
+            const height = parseInt(document.getElementById('height').value);
+
+            croppingArea.style.width = width + 'px';
+            croppingArea.style.height = height + 'px';
+
+            croppingArea.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('resize-handle')) {
+                    resizeHandle = e.target;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    document.addEventListener('mousemove', handleResize);
+                    document.addEventListener('mouseup', handleMouseUp);
+                } else {
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    croppingArea.style.left = startX + 'px';
+                    croppingArea.style.top = startY + 'px';
+                    document.addEventListener('mousemove', handleMouseMove);
+                    document.addEventListener('mouseup', handleMouseUp);
+                }
+            });
+        }
+
+        function handleMouseMove(e) {
+            endX = e.clientX;
+            endY = e.clientY;
+            const croppingArea = document.getElementById('cropping-area');
+            croppingArea.style.width = Math.abs(endX - startX) + 'px';
+            croppingArea.style.height = Math.abs(endY - startY) + 'px';
+            croppingArea.style.left = Math.min(endX, startX) + 'px';
+            croppingArea.style.top = Math.min(endY, startY) + 'px';
+        }
+
+        function handleResize(e) {
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            startX = e.clientX;
+            startY = e.clientY;
+            const croppingArea = document.getElementById('cropping-area');
+            const width = parseInt(croppingArea.style.width) + deltaX;
+            const height = parseInt(croppingArea.style.height) + deltaY;
+            croppingArea.style.width = width + 'px';
+            croppingArea.style.height = height + 'px';
+        }
+
+        function handleMouseUp() {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mousemove', handleResize);
+            document.removeEventListener('mouseup', handleMouseUp);
+            resizeHandle = null;
+        }
+
+        function captureScreen() {
+            const captureElement = document.getElementById('capture');
+            html2canvas(captureElement).then(canvas => {
+                const ctx = canvas.getContext('2d');
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const croppingArea = document.getElementById('cropping-area');
+                canvas.getContext('2d').drawImage(
+                    canvas,
+                    parseInt(croppingArea.style.left, 10) - captureElement.offsetLeft,
+                    parseInt(croppingArea.style.top, 10) - captureElement.offsetTop,
+                    parseInt(croppingArea.style.width, 10),
+                    parseInt(croppingArea.style.height, 10),
+                    0,
+                    0,
+                    parseInt(croppingArea.style.width, 10),
+                    parseInt(croppingArea.style.height, 10)
+                );
+                // Show the entire image
+                croppingArea.style.display = 'none';
+                // Open the captured image in a new window for preview
+                const previewWindow = window.open('');
+                previewWindow.document.write('<img src="' + canvas.toDataURL() + '"/>');
+            });
+        }
+
+        function saveScreenshot() {
+            const format = document.getElementById('format').value;
+            const filename = document.getElementById('filename').value + '.' + format;
+            const captureElement = document.getElementById('capture');
+            html2canvas(captureElement).then(canvas => {
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = filename;
+                    link.click();
+                }, 'image/' + format);
+            });
+        }
+
+        function createResizeHandles() {
+            const croppingArea = document.getElementById('cropping-area');
+            const bottomRightHandle = document.createElement('div');
+            bottomRightHandle.classList.add('resize-handle', 'bottom-right');
+            croppingArea.appendChild(bottomRightHandle);
+        }
+    </script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+    <div id="cropping-area"></div>
+</body>
+</html>
