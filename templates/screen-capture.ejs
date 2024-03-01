@@ -1,0 +1,24 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/assets/css/screen-capture.css">
+    <title>Screen Capture App</title>
+</head>
+<body>
+    <h1>Screen Capture App</h1>
+    <div id="capture-area"></div>
+    <button id="start-crop">Start Crop</button>
+    <button id="capture-btn">Capture Screenshot</button>
+    <select id="format">
+        <option value="png">PNG</option>
+        <option value="jpeg">JPEG</option>
+        <option value="webp">WEBP</option>
+    </select>
+    <button id="save-btn">Save</button>
+    <button id="share-btn">Share</button>
+    <script src="/assets/js/screen-capture.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            height: 1500px; /* Adjust the height for testing */
+            margin: 0;
+            padding: 0;
+        }
+        #capture {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 20px;
+        }
+    </style>
+    <title>Node.js Screen Capture</title>
+</head>
+<body>
+    <div id="capture">
+        <h2>Element to Capture a</h2>
+        <p>This is the content you want to capture.</p>
+    </div>
+    <form action="/capture" method="post">
+        <button type="submit">Capture Screenshot</button>
+    </form>
+</body>
+</html>

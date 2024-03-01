@@ -1,0 +1,13 @@
+/* public/styles.css */
+body {
+    text-align: center;
+    padding: 20px;
+    background-color: blueviolet;
+}
+#capture-area {
+    border: 1px solid #6cffb5;
+    margin: 20px;
+    position: relative;
+    width: 400px;
+    height: 300px;
+}
