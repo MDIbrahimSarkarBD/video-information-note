@@ -4,3 +4,16 @@ body .row{
 #ytplayer{
 
 }
+
+
+@keyframes opacityIS{
+    from {opacity: 1;}
+    to {opacity: 0; height: 0px;}
+}
+
+.MassegeIS{
+    transition: 2s;
+    background-color: azure;
+    animation: opacityIS 3s 1;
+    
+}

@@ -1,0 +1,104 @@
+
+
+console.log("type script check");
+
+class VideoInformationNote {
+
+  videoUrlInYoutube: string;
+  player: YT.Player | undefined;
+  public videoID: any;
+
+
+  constructor(videoUrl: string) {
+    this.videoUrlInYoutube = videoUrl;
+  }
+
+  url_Validity() {
+    // Regular expression to match YouTube video URLs
+    const youtubeRegex =
+      /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+
+    // Extract video ID using the regular expression
+    const match = this.videoUrlInYoutube.match(youtubeRegex);
+    
+    // Check if a match is found and return the video ID
+   
+
+    return match && match[1] ? match[1] : null;
+  }
+
+  // Construct the API request and video id playing validity return boolean
+  async video_cloud_validity(API_KEY: String, videoId: any): Promise<boolean> {
+    const requestUrl: string = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${API_KEY}`;
+
+    try {
+      const response: Response = await fetch(requestUrl);
+      const data: any = await response.json();
+
+      if (data.items && data.items.length > 0) {
+        return true; // Video exists and duration is available
+      } else {
+        console.log("Video not found or duration unavailable");
+        return false; // Video not found or duration unavailable
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      return false; // Error occurred during API call
+    }
+  }
+
+  video_insert_place(element_id: string): void {
+  
+    if (this.player) {
+        this.player.stopVideo();
+        this.player.loadVideoById(this.videoID);
+        console.log('Video Stop And play');
+    } else {
+        console.log('Play new object video in YouTube');
+
+        this.player =new YT.Player(element_id, {
+            height: 360,
+            width: 640,
+            videoId: this.videoID,
+            playerVars: {
+                controls: 1, // Hide default controls
+                disablekb: 1, // Disable keyboard controls
+                enablejsapi: 1 // Enable the JavaScript API
+            },
+            events: {
+              'onReady': this.onPlayerReady.bind(this),
+              'onStateChange': this.onPlayerStateChange.bind(this)
+          }
+        });
+
+      }
+}
+ // Method to handle player ready event
+ private onPlayerReady(event: YT.PlayerEvent): void {
+  console.log('YouTube player is ready.');
+  // You can perform additional actions here if needed
+}
+
+// Method to handle player state change event
+private onPlayerStateChange(event: YT.OnStateChangeEvent): void {
+  console.log('YouTube player state changed.');
+  // You can perform additional actions here if needed
+}
+
+
+
+  
+}
+
+const VINote: VideoInformationNote = new VideoInformationNote(
+  "https://youtube.com/watch?v=J4oZ-Lwg9Fc"
+);
+
+VINote.video_insert_place("player2");
+// MY Google API
+// const api_key: string = "AIzaSyDPBMHt70deqFNfr-bvDhUb0pWu3tlUT5g";
+// const videoId: any = VINote.url_Validity();
+
+// VINote.video_cloud_validity(api_key, videoId).then((valid) => {
+//   console.log("Video validity:", valid);
+// });
